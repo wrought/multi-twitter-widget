@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Multi Twitter Stream
-Plugin URI: http://plos.org/
+Plugin URI: http://github.com/msenateatplos/multi-twitter-widget
 Description: A widget for multiple twitter accounts and keyword search
 Author: Matt Senate, Clayton McIlrath
 Version: 1.5
