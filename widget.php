@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Multi Twitter Stream
-Plugin URI: http://github.com/msenateatplos/multi-twitter-widget
+Plugin URI: https://github.com/msenateatplos/multi-twitter-widget
 Description: A widget for multiple twitter accounts and keyword search
 Author: Matt Senate, Clayton McIlrath
-Version: 1.5
+Version: 1.5.1
 */
  
 /*
@@ -237,27 +237,28 @@ function multi_twitter($widget)
 			$content = curl_exec($ch);
 			curl_close($ch);
 			
-			// Createa an XML object from curl'ed content
-			$xml = new SimpleXMLElement($content);
-			$feeds[] = $xml;
-			
-			if ( $content === false ) 
+			// Create an XML object from curl'ed content
+			if ( ! $content === false )
 			{
-				// Content couldn't be retrieved... Do something..
-				$output .= '<li style="color: red;">Content could not be retrieved. Twitter API failed...</li>';
-			}
+				$xml = new SimpleXMLElement($content);
+				$feeds[] = $xml;
 		
-			// Let's save our data into uploads/cache/
-			$fp = fopen($cFile, 'w');
-			if ( ! $fp )
-			{
-				$output .= '<li style="color: red;">Permission to write cache dir to <em>'.$cFile.'</em> not granted</li>';
+				// Let's save our data into uploads/cache/
+				$fp = fopen($cFile, 'w');
+				if ( ! $fp )
+				{
+					$output .= '<li style="color: red;">Permission to write cache dir to <em>'.$cFile.'</em> not granted</li>';
+				}
+				else 
+				{
+					fwrite($fp, $content);
+				}
+				fclose($fp);
 			}
-			else 
+			else
 			{
-				fwrite($fp, $content);
+				// Content couldn't be retrieved... failing silently for now
 			}
-			fclose($fp);
 		} 
 		else
 		{
@@ -299,16 +300,11 @@ function multi_twitter($widget)
 			$content = curl_exec($ch);
 			curl_close($ch);
 			
-			// Createa an XML object from curl'ed content
+			// Create an XML object from curl'ed content
 			$xml = new SimpleXMLElement($content);
 			$feeds[] = $xml;
 			
-			if ( $content === false )
-			{
-				// Content couldn't be retrieved... Do something..
-				$output .= '<li>Content could not be retrieved. Twitter API failed...</li>';
-			}
-			else 
+			if ( ! $content === false )
 			{
 				// Let's save our data into uploads/cache/twitter/
 				$fp = fopen($cFile, 'w');
@@ -321,6 +317,10 @@ function multi_twitter($widget)
 					fwrite($fp, $content); 
 				}
 				fclose($fp);
+			}
+			else
+			{
+				// Content couldn't be retrieved... failing silently for now
 			}
 		} 
 		else 

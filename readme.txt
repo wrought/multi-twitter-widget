@@ -3,7 +3,7 @@ Contributors: msenate, clay.mcilrath
 Donate link: http://www.plos.org/support-us/individual-membership/
 Tags: widgets, twitter, multi twitter, multiple twitter, twitter account
 Requires at least: 2.8
-Tested up to: 3.5
+Tested up to: 3.5.2
 Stable tag: trunk
 
 Forks the Multi Twitter Stream plugin originally written by clay.mcilrath. A simple, updated widget that displays a most recent tweet from each account listed, as well as a number of tweets that result from a search (such as a hashtag). 
@@ -14,6 +14,7 @@ Have a team or group of tweeters that you'd like to show on a site?
 The problem with most Wordpress Twitter Plugins is that the few that support multiple twitter accounts usually show the tweets of the users in chronological order. This means if USER_A tweets more than USER_B your whole feed might be all about USER_A. I found in many cases that I'd rather pull in the most recent tweet from each user. So that's what this plugin does. It will also pull in search results and hashtags
 
 ## CHANGELOG
+- 1.5.1 A couple tweaks and a patch for twitter api throttled response handling http://wordpress.org/support/topic/possible-fix-to-php-error
 - 1.5 Adopts patches from msenate including using OO plugin format and readme cleanup
 - 1.4.3 Fixing the auto link conversion thanks to Roger
 - 1.4.2 Code cleanup
