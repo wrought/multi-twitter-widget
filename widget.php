@@ -231,7 +231,7 @@ function multi_twitter($widget)
 		{
 			// curl the account via XML to get the last tweet and user data
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://twitter.com/users/$account.xml");
+			curl_setopt($ch, CURLOPT_URL, "https://twitter.com/users/$account.xml");
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			$content = curl_exec($ch);
@@ -255,8 +255,15 @@ function multi_twitter($widget)
 				}
 				fclose($fp);
 			}
+			elseif ( file_exists($cFile) )
+			{
+				// cache is false, but we also got no new response
+				$xml = simplexml_load_file($cFile);
+				$feeds[] = $xml;
+			}
 			else
 			{
+				echo "Error, no content";
 				// Content couldn't be retrieved... failing silently for now
 			}
 		} 
@@ -294,7 +301,7 @@ function multi_twitter($widget)
 		{				
 			// curl the account via XML to get the last tweet and user data
 			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "http://search.twitter.com/search.atom?q=$term");
+			curl_setopt($ch, CURLOPT_URL, "https://search.twitter.com/search.atom?q=$term");
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			$content = curl_exec($ch);
