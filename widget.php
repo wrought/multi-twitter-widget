@@ -3,7 +3,7 @@
 Plugin Name: Multi Twitter Stream
 Plugin URI: https://github.com/msenateatplos/multi-twitter-widget
 Description: A widget for multiple twitter accounts and keyword search
-Author: Matt Senate, Clayton McIlrath
+Author: Clayton McIlrath, Roger Hamilton, Matt Senate
 Version: 1.5.1
 */
  
