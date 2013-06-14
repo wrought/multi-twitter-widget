@@ -3,7 +3,7 @@
 Plugin Name: Multi Twitter Stream
 Plugin URI: https://github.com/msenateatplos/multi-twitter-widget
 Description: A widget for multiple twitter accounts and keyword search
-Author: Matt Senate, Clayton McIlrath
+Author: Clayton McIlrath, Roger Hamilton, Matt Senate
 Version: 1.5.1
 */
  
@@ -150,276 +150,268 @@ function format_tweet($tweet, $widget)
 	
 function feed_sort($a, $b)
 {
-	if ( $a->status->created_at )
-	{
-		$a_t = strtotime($a->status->created_at);
-		$b_t = strtotime($b->status->created_at);
-	}
-	else if ( $a->updated ) 
-	{
-		$a_t = strtotime($a->updated);
-		$b_t = strtotime($b->updated);
-	}
-	
-	if ( $a_t == $b_t ) 
-		return 0 ;
+    if ( $a['created_at'] )
+    {
+        $a_t = strtotime($a['created_at']);
+        $b_t = strtotime($b['created_at']);
+    }
+    else if ( $a['updated'] )
+    {
+        $a_t = strtotime($a['updated']);
+        $b_t = strtotime($b['updated']);
+    }
 
-    return ($a_t > $b_t ) ? -1 : 1; 
+    if ($a_t == $b_t)
+        return 0;
+
+    return ($a_t > $b_t) ? -1 : 1;
 }
 
-function multi_twitter($widget) 
+
+function multi_twitter($widget)
 {
-	// Create our HTML output var to return
-	$output = ''; 
-	
-	// Get our root upload directory and create cache if necessary
-	$upload = wp_upload_dir();
-	$upload_dir = $upload['basedir']."/cache";
-	
-	if ( ! file_exists($upload_dir) )
-	{
-		if ( ! mkdir($upload_dir) )
-		{
-			$output .= '<span style="color: red;">could not create dir'.$upload_dir.' please create this directory</span>';
+    if ( ! class_exists('Codebird') )
+        require 'lib/codebird.php';
 
-			return $output;
-		}
-	}
-	
-	$accounts = explode(" ", $widget['users']);
-	$terms = explode(", ", $widget['terms']);
-	
-	if ( ! $widget['user_limit'] )
+    // Initialize Codebird with our keys.  We'll wait and
+    // pass the token when we make an actual request
+    Codebird::setConsumerKey($widget['consumer_key'], $widget['consumer_secret']);
+
+    $cb = Codebird::getInstance();
+    $output = '';
+
+    // Get our root upload directory and create cache if necessary
+    $upload     = wp_upload_dir();
+    $upload_dir = $upload['basedir'] . "/cache";
+
+    if ( ! file_exists($upload_dir) )
+    {
+        if ( ! mkdir($upload_dir))
+        {
+            $output .= '<span style="color: red;">could not create dir' . $upload_dir . ' please create this directory</span>';
+
+            return $output;
+        }
+    }
+
+    // split the accounts and search terms specified in the widget
+    $accounts = explode(" ", $widget['users']);
+    $terms    = explode(", ", $widget['terms']);
+
+    $output .= '<ul class="multi-twitter">';
+
+    // Parse the accounts and CRUD cache
+
+    $feeds = null;
+
+    foreach ( $accounts as $account )
+    {
+      if ( $account != "" )
+      {
+        $cache = false;
+        // Assume the cache is empty
+        $cFile = "$upload_dir/users_$account.txt";
+
+        if ( file_exists($cFile) )
+        {
+            $modtime = filemtime($cFile);
+            $timeago = time() - 1800; // 30 minutes ago
+
+            // Check if length is less than new limit
+            $str     = file_get_contents($cFile);
+            $content = unserialize($str);
+            $length = count($content);
+
+            if ( $modtime < $timeago or $length != $widget['user_limit'] )
+            {
+                // Set to false just in case as the cache needs to be renewed
+                $cache = false;
+            } 
+            else
+            {
+                // The cache is not too old so the cache can be used.
+                $cache = true;
+            }
+        }
+        
+        // begin
+        if ( $cache === false )
+        {
+            $cb->setToken($widget['access_token'], $widget['access_token_secret']);
+            $params  = array('screen_name' => $account, 'count' => $widget['user_limit']);
+            // let Codebird make an authenticated request  Result is json
+            $reply   = $cb->statuses_userTimeline($params);
+            // turn the json into an array
+            $json    = json_decode($reply, true);
+            $length = count($json);
+
+            for ($i = 0; $i < $length; $i++)
+            {
+                // add it to the feeds array
+                $feeds[] = $json[$i];
+                // prepare it for caching
+                $content[] = $json[$i];
+            }
+            
+            // Let's save our data into uploads/cache/
+            $fp = fopen($cFile, 'w');
+            
+            if (!$fp)
+            {
+                $output .= '<li style="color: red;">Permission to write cache dir to <em>' . $cFile . '</em> not granted</li>';
+            }
+            else
+            {
+                $str = serialize($content);
+                fwrite($fp, $str);
+            }
+            fclose($fp);
+		$content = null;
+        }
+        else
+        {
+            //cache is true let's load the data from the cached file
+            $str     = file_get_contents($cFile);
+            $content = unserialize($str);
+            $length = count($content);
+            // echo $length;
+            
+            for ($i = 0; $i < $length; $i++)
+            {
+                // add it to the feeds array
+                $feeds[] = $content[$i];
+            }
+        }
+      } // end account empty check
+    } // end accounts foreach
+
+    // Parse the terms and CRUD cache
+    foreach ( $terms as $term )
+    {
+      if ( $term != "" )
+      {
+        $cache = false;
+        // Assume the cache is empty
+        $cFile = "$upload_dir/term_$term.txt";
+        
+        if (file_exists($cFile))
+        {
+            $modtime = filemtime($cFile);
+            $timeago = time() - 1800; // 30 minutes ago 
+
+            // Check if length is less than new limit
+            $str     = file_get_contents($cFile);
+            $content = unserialize($str);
+            $length = count($content);
+
+            if ( $modtime < $timeago or $length != $widget['term_limit'] )
+            {
+                // Set to false just in case as the cache needs to be renewed
+                $cache = false;
+            } 
+            else
+            {
+                // The cache is not too old so the cache can be used.
+                $cache = true;
+            }
+        }
+
+        if ( $cache === false )
+        {
+            $cb->setToken($widget['access_token'], $widget['access_token_secret']);
+            $search_params = array(
+                'q' => $term,
+		'count' => $widget['term_limit']
+            );
+            $reply         = $cb->search_tweets($search_params);
+            $json          = json_decode($reply, true);
+            $length = count($json['statuses']);
+            
+            for ( $i = 0; $i < $length; $i++ )
+            {
+                // add it to the feeds array
+                $feeds[] = $json['statuses'][$i];
+                // prepare it for caching
+                $content[] = $json['statuses'][$i];
+            }
+
+            if ($content === false)
+            {
+                // Content couldn't be retrieved... Do something..
+                $output .= '<li>Content could not be retrieved. Twitter API failed...</li>';
+            } 
+            else
+            {
+                // Let's save our data into uploads/cache/
+                $fp = fopen($cFile, 'w');
+                
+                if (!$fp)
+                {
+                    $output .= '<li style="color: red;">Permission to write cache dir to <em>' . $cFile . '</em> not granted</li>';
+                } 
+                else
+                {
+                    fwrite($fp, serialize($content));
+                }
+                fclose($fp);
+		$content = null;
+            }
+        } 
+        else
+        {
+            //cache is true let's load the data from the cached file
+            $str     = file_get_contents($cFile);
+            $content = unserialize($str);
+            $length  = count($content);
+
+            for ($i = 0; $i < $length; $i++)
+            {
+                // add it to the feeds array
+                $feeds[] = $content[$i];
+            }
+        }
+      } // end terms empty check
+    } // end terms foreach
+
+    // Sort our $feeds array
+    if ( $widget['sort_by_date'] )
 	{
-		$widget['user_limit'] = 5; 
-	} 
-	
-	if ( ! $widget['term_limit'] )
-	{ 
-		$widget['term_limit'] = 5; 
+	usort($feeds, "feed_sort");
 	}
-	if ( ! $widget['result_limit'] )
-	{
-		$widget['result_limit'] = 2;
-	}
-	
-	$output .= '<ul class="multi-twitter">';
-		
-	// Parse the accounts and CRUD cache
-	foreach ( $accounts as $account )
-	{
-		$cache = false; // Assume the cache is empty
-		$cFile = "$upload_dir/users_$account.xml";
-	
-		if ( file_exists($cFile) ) 
-		{
-			$modtime = filemtime($cFile);		
-			$timeago = time() - 1800; // 30 minutes ago
-			if ( $modtime < $timeago )
-			{
-				// Set to false just in case as the cache needs to be renewed
-				$cache = false; 
-			} 
-			else 
-			{
-				// The cache is not too old so the cache can be used.
-				$cache = true; 
-			}
-		}
-		
-		if ( $cache === false ) 
-		{
-			// curl the account via XML to get the last tweet and user data
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "https://twitter.com/users/$account.xml");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$content = curl_exec($ch);
-			curl_close($ch);
-			
-			// Create an XML object from curl'ed content
-			if ( ! $content === false )
-			{
-				$xml = new SimpleXMLElement($content);
-				$feeds[] = $xml;
-		
-				// Let's save our data into uploads/cache/
-				$fp = fopen($cFile, 'w');
-				if ( ! $fp )
-				{
-					$output .= '<li style="color: red;">Permission to write cache dir to <em>'.$cFile.'</em> not granted</li>';
-				}
-				else 
-				{
-					fwrite($fp, $content);
-				}
-				fclose($fp);
-			}
-			elseif ( file_exists($cFile) )
-			{
-				// cache is false, but we also got no new response
-				$xml = simplexml_load_file($cFile);
-				$feeds[] = $xml;
-			}
-			else
-			{
-				echo "Error, no content";
-				// Content couldn't be retrieved... failing silently for now
-			}
-		} 
-		else
-		{
-			//cache is true let's load the data from the cached file
-			$xml = simplexml_load_file($cFile);
-			$feeds[] = $xml;
-		}
-	}
-	
-	// Parse the terms and CRUD cache
-	foreach ( $terms as $term )
-	{
-		$cache = false; // Assume the cache is empty
-		$cFile = "$upload_dir/term_$term.xml";
-	
-		if ( file_exists($cFile) )
-		{
-			$modtime = filemtime($cFile);
-			$timeago = time() - 1800; // 30 minutes ago
-			if ( $modtime < $timeago )
-			{
-				// Set to false just in case as the cache needs to be renewed
-				$cache = false; 
-			}
-			else
-			{
-				// The cache is not too old so the cache can be used.
-				$cache = true; 
-			}
-		}
-		
-		if ( $cache === false ) 
-		{				
-			// curl the account via XML to get the last tweet and user data
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, "https://search.twitter.com/search.atom?q=$term");
-			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			$content = curl_exec($ch);
-			curl_close($ch);
-			
-			// Create an XML object from curl'ed content
-			$xml = new SimpleXMLElement($content);
-			$feeds[] = $xml;
-			
-			if ( ! $content === false )
-			{
-				// Let's save our data into uploads/cache/twitter/
-				$fp = fopen($cFile, 'w');
-				if ( ! $fp )
-				{
-					 $output .= '<li style="color: red;">Permission to write cache dir to <em>'.$cFile.'</em> not granted</li>';
-				} 
-				else 
-				{ 
-					fwrite($fp, $content); 
-				}
-				fclose($fp);
-			}
-			else
-			{
-				// Content couldn't be retrieved... failing silently for now
-			}
-		} 
-		else 
-		{
-			//cache is true let's load the data from the cached file
-			$xml = simplexml_load_file($cFile);
-			$feeds[] = $xml;
-		}
-	}
-	
-	// Sort our $feeds array
-	//usort($feeds, "feed_sort");
-	
-	// Split array and output results
-	$sn_index = 0;
-	$term_index = 0;
-	
-	foreach ( $feeds as $feed )
-	{
-		if ( $feed->screen_name != '' AND $sn_index <= $widget['user_limit'] )
-		{
-			$output .= 
-				'<li class="clearfix">'.
-					'<a href="http://twitter.com/'.$feed->screen_name.'">'.
-						'<img class="twitter-avatar" src="'
-						.$feed->profile_image_url
-						.'" width="40" height="40" alt="'
-						.$feed->screen_name.'" />'
-						.$feed->screen_name
-						.':</a> '
-						.format_tweet($feed->status->text, $widget)
-						.'<br />';
-						
-			if ( $widget['date'] )
-			{ 
-				$output .= '<em>'.human_time(strtotime($feed->status->created_at)).'</em>'; 
-			}
-			
-			$output .= '</li>';
-		}
-		$sn_index++;
-		if ( preg_match('/search.twitter.com/i', $feed->id) AND $term_index <= $widget['term_limit'] )
-		{
-			$count = count($feed->entry);
-			
-			for ( $i=0; $i<$count; $i++ )
-			{
-				if ( $i < $widget['result_limit'] )
-				{
-					$output .= 
-						'<li class="clearfix">'.
-							'<a href="'.$feed->entry[$i]->author->uri.'">'.
-								'<img class="twitter-avatar" '.
-									'src="'.$feed->entry[$i]->link[1]->attributes()->href.'" '.
-									'width="40" height="40" '.
-									'alt="'.$feed->entry[$i]->author->name.'" />'.
-								$feed->entry[$i]->author->name.
-							'</a>: '.
-							format_tweet($feed->entry[$i]->content, $widget).
-							'<br />';
-							
-					if ( $widget['date'] )
-					{ 
-						$output .= '<em>'.human_time(strtotime($feed->updated)).'</em>'; 
-					}
-					$output .= '</li>';
-				}
-			}
-		}
-		$term_index++;
-	}
-	
-	$output .= '</ul>';
-	
-	if ( $widget['credits'] == true )
-	{
-		$output .= 
-			'<hr />'.
-			'<strong>powered by</strong> '.
-			'<a href="http://incbrite.com/services/wordpress-plugins" target="_blank">Incbrite Wordpress Plugins</a>';
-	}
-	
-	if ( $widget['styles'] == true )
-	{
-		$output .= 
-			'<style type="text/css">'.
-			'.twitter-avatar { clear: both; float: left; padding: 6px 12px 2px 0; }'.
-			'</style>';
-	}	
-	
-	echo $output;
+
+    // Split array and output results
+    $i = 1;
+
+    // format the tweet for display
+    foreach ( $feeds as $feed )
+    {
+        if ( ! empty($feed) ) 
+        {
+            $output .= '<li class="tweet clearfix" style="margin-bottom:8px;">' . '<a href="http://twitter.com/' . $feed['user']['screen_name'] . '">' . '<img class="twitter-avatar" style="float:left;margin:4px 10px 0 0;" src="' . $feed['user']['profile_image_url'] . '" width="40" height="40" alt="' . $feed['user']['screen_name'] . '" />' . '</a>';
+            $output .= '<span class="tweet-userName">' . $feed['user']['name'] . '&nbsp;-&nbsp;</span>';
+            if ($widget['date'])
+            {
+                $output .= '<span class="tweet-time"><em>' . human_time(strtotime($feed['created_at'])) . '&nbsp;-&nbsp;</em></span>';
+            }
+            $output .= '<span class="tweet-message">' . format_tweet($feed['text'], $widget) . '</span>';
+
+            $output .= '</li>';
+        }
+    }
+    $output .= '</ul>';
+
+    if ($widget['credits'] === true)
+    {
+        $output .= '<hr />' . '<strong>development by</strong> ' . '<a href="http://twitter.com/thinkclay" target="_blank">Clay McIlrath</a>, <a href="http://twitter.com/roger_hamilton" target="_blank">Roger Hamilton</a>, and <a href="http://twitter.com/wrought/" target="_blank">Matt Senate</a>.';
+    }
+    
+    if ($widget['styles'] === true)
+    {
+        $output .= '<style type="text/css">' . '.twitter-avatar { clear: both; float: left; padding: 6px 12px 2px 0; }' . '.twitter{background:none;}' . '.tweet{min-height:48px;margin:0!important;}' . '.tweet a{text-decoration:underline;}' . '.tweet-userName{padding-top:7px;font-size:12px;line-height:0;color:#454545;font-family:Arial,sans-serif;font-weight:700;margin-bottom:10px;margin-left:8px;float:left;min-width:50px;}' . '.twitter-avatar{width:48px;height:48px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;padding:0!important;}' . '.tweet-time{color:#8A8A8A;float:left;margin-top:-3px;font-size:11px!important;}' . '.tweet-message{font-size:11px;line-height:14px;color:#333;font-family:Arial,sans-serif;word-wrap:break-word;margin-top:-30px!important;width:200px;margin-left:58px;}' . '</style>';
+    }
+    echo $output;
 }
+
 
 /*
  * Attempts to implement extension of WP_Widget class
@@ -454,18 +446,21 @@ class multiTwitterWidget extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		// Save widget options
 		$new_instance = (array) $new_instance;
-		$instance = array( 'hash' => 0, 'reply' => 0, 'links' => 0, 'date' => 0, 'credits' => 0, 'styles' => 0 );
+		$instance = array( 'hash' => 0, 'reply' => 0, 'links' => 0, 'date' => 0, 'sort_by_date' => 0, 'credits' => 0, 'styles' => 0 );
 		// Set values
 		foreach ( $instance as $field => $val ) {
 			if (isset($new_instance[$field]) )
 				$instance[$field] = 1; // loop through booleans
 		}
+		$instance['consumer_key'] = htmlspecialchars($new_instance['consumer_key']);
+		$instance['consumer_secret'] = htmlspecialchars($new_instance['consumer_secret']);
+		$instance['access_token'] = htmlspecialchars($new_instance['access_token']);
+		$instance['access_token_secret'] = htmlspecialchars($new_instance['access_token_secret']);
 		$instance['title'] = htmlspecialchars($new_instance['title']);
 		$instance['users'] = htmlspecialchars($new_instance['users']);
 		$instance['terms'] = htmlspecialchars($new_instance['terms']);
 		$instance['user_limit'] = intval($new_instance['user_limit']);
 		$instance['term_limit'] = intval($new_instance['term_limit']);
-		$instance['result_limit'] = intval($new_instance['result_limit']);
 
 		// Return
 		return $instance;
@@ -474,97 +469,107 @@ class multiTwitterWidget extends WP_Widget {
 
 	function form( $instance ) {
 		// Default values (if key is not set, use default values below)
-		$instance = wp_parse_args( (array) $instance, array( 'title' => 'Multi Twitter', 'users' => 'wrought thinkclay', 'terms' => 'wordpress, plos', 'user_limit' => 5, 'term_limit' => 5, 'result_limit' => 2, 'links' => 1, 'reply' => 1, 'hash' => 1, 'date' => 1, 'credits' => 1, 'styles' => 1 ) );
+		$instance = wp_parse_args( (array) $instance, array( 'consumer_key' => 'lNbFfDyYdUdZPhqqlsAGVA', 'consumer_secret' => 'izPPTeFQYlC2UFsxxu6ODZtoOC6FFyPZyXX959p4Z4', 'access_token' => '16468552-NUSSANz4tgU7gUCZPHMWxSdgatO10YtG1SrBuYUAA', 'access_token_secret' => 'SZJZIJ0jdRKa9EQ9T6JpamxOz28GDWuvDl7tydwzHIQ', 'title' => 'Multi Twitter', 'users' => 'thinkclay roger_hamilton wrought', 'terms' => 'wordpress, plos', 'user_limit' => 1, 'term_limit' => 1, 'links' => 1, 'reply' => 1, 'hash' => 1, 'date' => 1, 'sort_by_date' => 1, 'credits' => 0, 'styles' => 1 ) );
 		// Output admin widget options form
 		?>
-		<p>
-			<label for="<?php echo $this->get_field_id('title'); ?>">Widget Title: </label><br />
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title']; ?>" />
-		</p>
-		<p>	
-			<label for="<?php echo $this->get_field_id('users'); ?>">Users: </label><br />
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id('users'); ?>" name="<?php echo $this->get_field_name('users'); ?>" value="<?php echo $instance['users']; ?>" /><br />
-			<small><em>enter accounts separated with a space</em></small>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('terms'); ?>">Search Terms: </label><br />
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id('terms'); ?>" name="<?php echo $this->get_field_name('terms'); ?>" value="<?php echo $instance['terms']; ?>" /><br />
-			<small><em>enter search terms separated with a comma</em></small>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('user_limit'); ?>">Limit user feed to: </label>
-			<select id="<?php echo $this->get_field_id('user_limit'); ?>" name="<?php echo $this->get_field_name('user_limit'); ?>">				<option value="<?php echo $instance['user_limit']; ?>"><?php echo $instance['user_limit']; ?></option>
-				<option value="1">1</option>
-				<option value="2">2</option>
-				<option value="3">3</option>
-				<option value="4">4</option>
-				<option value="5">5</option>
-				<option value="6">6</option>
-				<option value="7">7</option>
-				<option value="8">8</option>
-				<option value="9">9</option>
-				<option value="10">10</option>
-			</select>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('term_limit'); ?>">Limit search terms to: </label>
-			<select id="<?php echo $this->get_field_id('term_limit'); ?>" name="<?php echo $this->get_field_name('term_limit'); ?>">
-				<option value="<?php echo $instance['term_limit']; ?>"><?php echo $instance['term_limit']; ?></option>
-				<option value="1">1</option>
-				<option value="2">2</option>
-				<option value="3">3</option>
-				<option value="4">4</option>
-				<option value="5">5</option>
-				<option value="6">6</option>
-				<option value="7">7</option>
-				<option value="8">8</option>
-				<option value="9">9</option>
-				<option value="10">10</option>
-			</select>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('result_limit'); ?>">Limit search results to: </label>
-			<select id="<?php echo $this->get_field_id('result_limit'); ?>" name="<?php echo $this->get_field_name('result_limit'); ?>">
-				<option value="<?php echo $instance['result_limit']; ?>"><?php echo $instance['result_limit']; ?></option>
-				<option value="1">1</option>
-				<option value="2">2</option>
-				<option value="3">3</option>
-				<option value="4">4</option>
-				<option value="5">5</option>
-				<option value="6">6</option>
-				<option value="7">7</option>
-				<option value="8">8</option>
-				<option value="9">9</option>
-				<option value="10">10</option>
-			</select>
-		<br />
-		<small><em>Limits number of results for each term.</em></small>
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('links'); ?>">Automatically convert links?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('links'); ?>" id="<?php echo $this->get_field_id('links'); ?>" <?php if ($instance['links']) echo 'checked="checked"'; ?> />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('reply'); ?>">Automatically convert @replies?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('reply'); ?>" id="<?php echo $this->get_field_id('reply'); ?>" <?php if ($instance['reply']) echo 'checked="checked"'; ?> />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('hash'); ?>">Automatically convert #hashtags?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('hash'); ?>" id="<?php echo $this->get_field_id('hash'); ?>" <?php if ($instance['hash']) echo 'checked="checked"'; ?> />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('date'); ?>">Show Date?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('date'); ?>" id="<?php echo $this->get_field_id('date'); ?>" <?php if ($instance['date']) echo 'checked="checked"'; ?> />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('credits'); ?>">Show Credits?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('credits'); ?>" id="<?php echo $this->get_field_id('credits'); ?>" <?php if ($instance['credits']) echo 'checked="checked"'; ?> />
-		</p>
-		<p>
-			<label for="<?php echo $this->get_field_id('styles'); ?>">Use Default Styles?</label>
-			<input type="checkbox" name="<?php echo $this->get_field_name('styles'); ?>" id="<?php echo $this->get_field_id('styles'); ?>" <?php if ($instance['styles']) echo 'checked="checked"'; ?> />
-		</p>
-		<?php
+	<fieldset style="border:1px solid gray;padding:10px;">
+	<legend>Oauth Settings</legend>
+	<p>
+	<label for="<?php echo $this->get_field_id('consumer_key'); ?>">Consumer Key: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('consumer_key'); ?>" name="<?php echo $this->get_field_name('consumer_key'); ?>" value="<?php echo $instance['consumer_key']; ?>" />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('consumer_secret'); ?>">Consumer Secret: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('consumer_secret'); ?>" name="<?php echo $this->get_field_name('consumer_secret'); ?>" value="<?php echo $instance['consumer_secret']; ?>" />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('access_token'); ?>">Access Token: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('access_token'); ?>" name="<?php echo $this->get_field_name('access_token'); ?>" value="<?php echo $instance['access_token']; ?>" />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('access_token_secret'); ?>">Access Token Secret: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('access_token_secret'); ?>" name="<?php echo $this->get_field_name('access_token_secret'); ?>" value="<?php echo $instance['access_token_secret']; ?>" />
+	</p>
+	</fieldset>
+	<p>
+	<label for="<?php echo $this->get_field_id('title'); ?>">Widget Title: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" value="<?php echo $instance['title']; ?>" />
+	</p>
+	<p>	
+	<label for="<?php echo $this->get_field_id('users'); ?>">Users: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('users'); ?>" name="<?php echo $this->get_field_name('users'); ?>" value="<?php echo $instance['users']; ?>" /><br />
+	<small><em>enter accounts separated with a space</em></small>
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('terms'); ?>">Search Terms: </label><br />
+	<input type="text" class="widefat" id="<?php echo $this->get_field_id('terms'); ?>" name="<?php echo $this->get_field_name('terms'); ?>" value="<?php echo $instance['terms']; ?>" /><br />
+	<small><em>enter search terms separated with a comma</em></small>
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('user_limit'); ?>">Limit user feed to: </label>
+	<select id="<?php echo $this->get_field_id('user_limit'); ?>" name="<?php echo $this->get_field_name('user_limit'); ?>">
+		<option value="<?php echo $instance['user_limit']; ?>"><?php echo $instance['user_limit']; ?></option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+		<option value="8">8</option>
+		<option value="9">9</option>
+		<option value="10">10</option>
+	</select>
+        <br />
+        <small><em>Limits number of results for each user.</em></small>
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('term_limit'); ?>">Limit search terms to: </label>
+	<select id="<?php echo $this->get_field_id('term_limit'); ?>" name="<?php echo $this->get_field_name('term_limit'); ?>">
+		<option value="<?php echo $instance['term_limit']; ?>"><?php echo $instance['term_limit']; ?></option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+		<option value="8">8</option>
+		<option value="9">9</option>
+		<option value="10">10</option>
+	</select>
+        <br />
+        <small><em>Limits number of results for each term.</em></small>
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('links'); ?>">Automatically convert links?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('links'); ?>" id="<?php echo $this->get_field_id('links'); ?>" <?php if ($instance['links']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('reply'); ?>">Automatically convert @replies?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('reply'); ?>" id="<?php echo $this->get_field_id('reply'); ?>" <?php if ($instance['reply']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('hash'); ?>">Automatically convert #hashtags?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('hash'); ?>" id="<?php echo $this->get_field_id('hash'); ?>" <?php if ($instance['hash']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('date'); ?>">Show Date?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('date'); ?>" id="<?php echo $this->get_field_id('date'); ?>" <?php if ($instance['date']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('sort_by_date'); ?>">Sort by Date?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('sort_by_date'); ?>" id="<?php echo $this->get_field_id('sort_by_date'); ?>" <?php if ($instance['sort_by_date']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('credits'); ?>">Show Credits?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('credits'); ?>" id="<?php echo $this->get_field_id('credits'); ?>" <?php if ($instance['credits']) echo 'checked="checked"'; ?> />
+	</p>
+	<p>
+	<label for="<?php echo $this->get_field_id('styles'); ?>">Use Default Styles?</label>
+	<input type="checkbox" name="<?php echo $this->get_field_name('styles'); ?>" id="<?php echo $this->get_field_id('styles'); ?>" <?php if ($instance['styles']) echo 'checked="checked"'; ?> />
+	</p>
+<?php
 	}
 }
 
