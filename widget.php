@@ -10,8 +10,8 @@ Version: 1.5.1
 /*
  * @TODO:
  * + Options for order arrangement (chrono, alpha, etc)
- * + Fix bugs with user and search term limits
  * + Change admin form to allow free text field (using intval() anyway to sanitize)
+ * + Remove in-line styles, create custom style sheet and enqueue w/ WP
  */
 
 function human_time($datefrom, $dateto = -1)
