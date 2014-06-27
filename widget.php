@@ -139,7 +139,7 @@ function format_tweet($tweet, $widget)
 	    $tweet = preg_replace('/(^|\s)@(\w+)/', '\1@<a href="http://www.twitter.com/\2">\2</a>', $tweet);
 	
 	if ( $widget['hash'] )
-	    $tweet = preg_replace('/(^|\s)#(\w+)/', '\1#<a href="http://search.twitter.com/search?q=%23\2">\2</a>', $tweet);
+	    $tweet = preg_replace('/(^|\s)#(\w+)/', '\1#<a href="http://twitter.com/search?q=%23\2">\2</a>', $tweet);
 	
 	if( $widget['links'] )
 		$tweet = preg_replace('#(^|[\n ])(([\w]+?://[\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)#is', '\1<a href="\2">\2</a>', $tweet);
