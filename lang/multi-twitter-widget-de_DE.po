@@ -1,10 +1,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Multi Twitter Widget\n"
-"POT-Creation-Date: 2014-09-08 13:47-0600\n"
-"PO-Revision-Date: 2014-09-08 13:52-0600\n"
+"POT-Creation-Date: 2014-09-08 14:28-0600\n"
+"PO-Revision-Date: 2014-09-08 14:28-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,179 +13,178 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: __;_e\n"
-"Language: de_DE\n"
 "X-Poedit-SearchPath-0: /Users/admin/Documents/github/cviebrock/multi-twitter-"
 "widget\n"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:21
 msgid "A long time ago"
-msgstr ""
+msgstr "Schon länger her"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:92
 #, php-format
 msgid "%d month ago"
-msgstr ""
+msgstr "vor %d Monat"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:93
 #, php-format
 msgid "%d months ago"
-msgstr ""
+msgstr "vor %d Monaten"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:104
 #, php-format
 msgid "%d year ago"
-msgstr ""
+msgstr "vor %d Jahr"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:105
 #, php-format
 msgid "%d years ago"
-msgstr ""
+msgstr "vor %d Jahren"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:114
 #, php-format
 msgid "%d day ago"
-msgstr ""
+msgstr "vor %d Tag"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:115
 #, php-format
 msgid "%d days ago"
-msgstr ""
+msgstr "vor %d Tagen"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:124
 #, php-format
 msgid "%d week ago"
-msgstr ""
+msgstr "vor %d Woche"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:125
 #, php-format
 msgid "%d weeks ago"
-msgstr ""
+msgstr "vor %d Wochen"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:134
 #, php-format
 msgid "%d hour ago"
-msgstr ""
+msgstr "vor %d Stunde"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:135
 #, php-format
 msgid "%d hours ago"
-msgstr ""
+msgstr "vor %d Stunden"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:144
 #, php-format
 msgid "%d minute ago"
-msgstr ""
+msgstr "vor %d Minute"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:145
 #, php-format
 msgid "%d minutes ago"
-msgstr ""
+msgstr "vor %d Minuten"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:154
 #, php-format
 msgid "%d second ago"
-msgstr ""
+msgstr "vor %d Sekunde"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:155
 #, php-format
 msgid "%d seconds ago"
-msgstr ""
+msgstr "vor %d Sekunden"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:222
 #, php-format
 msgid "Could not create dir \"%s\"; please create this directory."
-msgstr ""
+msgstr "Kann dir \"%s\" nicht erstellen; bitte erstelle diesen Ordner."
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:295
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:389
 #, php-format
 msgid "Permission to write cache dir to <em>%s</em> not granted."
-msgstr ""
+msgstr "Erlaaubnis cache dir zu <em>%s</em> zu schreiben nicht erteilt."
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:378
 msgid "Content could not be retrieved; Twitter API failed."
-msgstr ""
+msgstr "Inhalt kann nicht empfangen werden; Twitter API schlug fehl."
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:446
 msgid "Development by"
-msgstr ""
+msgstr "Entwickelt von"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:472
 msgid "Widget to display tweets from multiple twitter accounts"
-msgstr ""
+msgstr "Widget um Tweets von mehreren Tiwtter Accounts darzustellen"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:521
 msgid "Oauth Settings"
-msgstr ""
+msgstr "Oauth Einstellungen"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:523
 msgid "Consumer Key:"
-msgstr ""
+msgstr "Kundenschlüssel:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:527
 msgid "Consumer Secret:"
-msgstr ""
+msgstr "Kundengeheimnis:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:531
 msgid "Access Token:"
-msgstr ""
+msgstr "Zugangszeichen:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:535
 msgid "Access Token Secret:"
-msgstr ""
+msgstr "Zugangszeichengeheimnis:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:540
 msgid "Widget Title:"
-msgstr ""
+msgstr "Widget Titel:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:544
 msgid "Users:"
-msgstr ""
+msgstr "Nutzer:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:549
 msgid "Search Terms:"
-msgstr ""
+msgstr "Suchbegriffe:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:554
 msgid "Limit user feed to:"
-msgstr ""
+msgstr "Begrenze Nutzer feed auf:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:569
 msgid "Limits number of results for each user."
-msgstr ""
+msgstr "Begrenzt Anzahl der Ergebnisse für jeden Nutzer."
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:572
 msgid "Limit search terms to:"
-msgstr ""
+msgstr "Begrenze Suchbegriffe auf:"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:587
 msgid "Limits number of results for each term."
-msgstr ""
+msgstr "Begrenzt Anzahl der Ergebnisse für jeden Suchbegriffe."
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:590
 msgid "Automatically convert links?"
-msgstr ""
+msgstr "Automatische Konvertierung von Links?"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:594
 msgid "Automatically convert @replies?"
-msgstr ""
+msgstr "Automatische Konvertierung @Antworten"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:598
 msgid "Automatically convert #hashtags?"
-msgstr ""
+msgstr "Automatische Konvertierung #Hashtags"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:602
 msgid "Show Date?"
-msgstr ""
+msgstr "Zeigen Sie das Datum?"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:606
 msgid "Sort by Date?"
-msgstr ""
+msgstr "Nach Datum sortieren?"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:610
 msgid "Show Credits?"
-msgstr ""
+msgstr "Zeigen Sie das Abspann?"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:614
 msgid "Use Default Styles?"
-msgstr ""
+msgstr "Verwenden Sie Standard-Stile?"
