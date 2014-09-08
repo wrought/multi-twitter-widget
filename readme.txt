@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: clay.mcilrath, roger_hamilton, msenate
+Contributors: clay.mcilrath, roger_hamilton, msenate, cviebrock
 Donate link: http://bitly.com/111ya6n
 Tags: widgets, twitter, multi twitter, multiple twitter, twitter account
 Requires at least: 2.8
