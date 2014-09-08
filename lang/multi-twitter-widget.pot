@@ -141,8 +141,16 @@ msgstr ""
 msgid "Users:"
 msgstr ""
 
+#: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:546
+msgid "Enter accounts separated with a space"
+msgstr ""
+
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:549
 msgid "Search Terms:"
+msgstr ""
+
+#: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:551
+msgid "Enter search terms separated with a comma"
 msgstr ""
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:554

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Multi Twitter Widget\n"
 "POT-Creation-Date: 2014-09-08 14:28-0600\n"
-"PO-Revision-Date: 2014-09-08 14:28-0600\n"
+"PO-Revision-Date: 2014-09-08 15:20-0600\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de_DE\n"
@@ -141,9 +141,17 @@ msgstr "Widget Titel:"
 msgid "Users:"
 msgstr "Nutzer:"
 
+#: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:546
+msgid "Enter accounts separated with a space"
+msgstr "Geben Sie Konten mit einem Leerzeichen getrennt"
+
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:549
 msgid "Search Terms:"
 msgstr "Suchbegriffe:"
+
+#: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:551
+msgid "Enter search terms separated with a comma"
+msgstr "Geben Sie Suchbegriffe mit einem Komma getrennt"
 
 #: /Users/admin/Documents/github/cviebrock/multi-twitter-widget/widget.php:554
 msgid "Limit user feed to:"

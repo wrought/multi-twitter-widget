@@ -543,12 +543,12 @@ class multiTwitterWidget extends WP_Widget {
 	<p>
 	<label for="<?php echo $this->get_field_id('users'); ?>"><?php echo __('Users:', 'multi-twitter-widget'); ?> </label><br />
 	<input type="text" class="widefat" id="<?php echo $this->get_field_id('users'); ?>" name="<?php echo $this->get_field_name('users'); ?>" value="<?php echo $instance['users']; ?>" /><br />
-	<small><em>enter accounts separated with a space</em></small>
+	<small><em><?php echo __('Enter accounts separated with a space'); ?></em></small>
 	</p>
 	<p>
 	<label for="<?php echo $this->get_field_id('terms'); ?>"><?php echo __('Search Terms:', 'multi-twitter-widget'); ?> </label><br />
 	<input type="text" class="widefat" id="<?php echo $this->get_field_id('terms'); ?>" name="<?php echo $this->get_field_name('terms'); ?>" value="<?php echo $instance['terms']; ?>" /><br />
-	<small><em>enter search terms separated with a comma</em></small>
+	<small><em><?php echo __('Enter search terms separated with a comma'); ?></em></small>
 	</p>
 	<p>
 	<label for="<?php echo $this->get_field_id('user_limit'); ?>"><?php echo __('Limit user feed to:', 'multi-twitter-widget'); ?> </label>

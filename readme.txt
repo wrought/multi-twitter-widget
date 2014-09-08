@@ -19,6 +19,7 @@ from each user. So that's what this plugin does. It will also pull in search res
 Another fork exists here: https://github.com/msenateatplos/multi-twitter-widget/blob/master/widget.php
 
 ## CHANGELOG
+- 1.6.0 Colin added support for wpackagist installation, and translations (en by default, de_DE added)
 - 1.5.1 Matt added all his patches, reworked to adopt Roger's OAuth, use OO, etc
 - 1.5.0 Roger did an overhaul on the plugin supporting oath and other more modern conventions
 - 1.4.3 Fixing the auto link conversion thanks to Roger
