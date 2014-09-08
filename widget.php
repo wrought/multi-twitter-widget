@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: Multi Twitter Stream
-Plugin URI: https://github.com/msenateatplos/multi-twitter-widget
+Plugin URI: https://github.com/cviebrock/multi-twitter-widget
 Description: A widget for multiple twitter accounts and keyword search
-Author: Clayton McIlrath, Roger Hamilton, Matt Senate
-Version: 1.5.1
+Author: Clayton McIlrath, Roger Hamilton, Matt Senate, Colin Viebrock
+Version: 1.6.0
 */
 
 /*

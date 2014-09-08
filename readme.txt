@@ -3,7 +3,7 @@ Contributors: clay.mcilrath, roger_hamilton, msenate, cviebrock
 Donate link: http://bitly.com/111ya6n
 Tags: widgets, twitter, multi twitter, multiple twitter, twitter account
 Requires at least: 2.8
-Tested up to: 3.5.1
+Tested up to: 3.9.2
 Stable tag: trunk
 
 A simple widget that displays only the most recent tweet from multiple accounts.
