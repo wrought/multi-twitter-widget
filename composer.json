@@ -1,0 +1,30 @@
+{
+  "name": "cviebrock/multi-twitter-widget",
+  "description": "A simple widget that displays only the most recent tweet from multiple accounts. Fork of https://github.com/wrought/multi-twitter-widget",
+  "type": "wordpress-plugin",
+  "homepage": "https://github.com/cviebrock/multi-twitter-widget",
+  "authors": [
+    {
+      "name": "Clay Mcilrath",
+      "homepage": "http://twitter.com/thinkclay"
+    },
+    {
+      "name": "Roger Hamilton",
+      "homepage": "http://twitter.com/roger_hamilton"
+    },
+    {
+      "name": "Matt Senate",
+      "homepage": "https://github.com/wrought"
+    },
+    {
+      "name": "Colin Viebrock",
+      "homepage": "https://github.com/cviebrock"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0.0"
+  },
+  "extra": {
+    "installer-name": "multi-twitter-widget"
+  }
+}
